@@ -1,5 +1,4 @@
-# Quick Tagging is an anki2 addon for adding tags while reviewing by
-# hitting a keyboard shortcut ('t' by default.)
+# Quick Tagging is an anki2 addon for quickly adding tags while reviewing
 # Copyright 2012 Cayenne Boyer
 #
 # This program is free software: you can redistribute it and/or modify
@@ -21,22 +20,29 @@
 
 tag_shortcut = 't'
 
+quick_tags = {
+
+# Add lines here to create shortcuts that add specified tags
+
+# Examples (remove the leading #):
+
+# Keybinding to add a named tag:
+#'j': {'tags': 'hard'},
+
+# Add multiple tags by seperating them with spaces:
+#'k': {'tags': 'hard marked'},
+
+} # end quick_tags
+
 # END CONFIGURATION OPTIONS
 
 from aqt import mw
 from aqt.utils import getTag
 from aqt.reviewer import Reviewer
 
-# function that allows tag adding
+# add space separated tags to the current card
 
-def promptAndAddTags():
-    # prompt for new tags
-    prompt = _("Enter tags to add:")
-    (tagString, r) = getTag(mw, mw.col, prompt)
-    # don't do anything if we didn't get anything
-    if not r:
-        return
-    # otherwise, continue:
+def addTags(tagString):
     # enable undo
     mw.checkpoint(_("Add Tags"))
     # add tags to card
@@ -45,12 +51,26 @@ def promptAndAddTags():
         mw.reviewer.card.note().addTag(tag)
     mw.reviewer.card.note().flush()
 
+# prompt for tags and add the results
+
+def promptAndAddTags():
+    # prompt for new tags
+    prompt = _("Enter tags to add:")
+    (tagString, r) = getTag(mw, mw.col, prompt)
+    # don't do anything if we didn't get anything
+    if not r:
+        return
+    # otherwise, add the given tags:
+    addTags(tagsString)
+
 # replace _keyHandler in reviewer.py to add a keybinding
 
 def newKeyHandler(self, evt):
     key = unicode(evt.text())
     if key == tag_shortcut:
         promptAndAddTags()
+    elif key in quick_tags:
+        addTags(quick_tags[key]['tags'])
     else:
         origKeyHandler(self, evt)
 
