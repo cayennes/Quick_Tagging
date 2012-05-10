@@ -31,7 +31,7 @@ def promptAndAddTags():
         return
     # otherwise, continue:
     # enable undo
-    mw.checkpoint("Undo add tags")
+    mw.checkpoint(_("Add Tags"))
     # add tags to card
     tagList = mw.col.tags.split(tagString)
     for tag in tagList:
