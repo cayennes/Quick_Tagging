@@ -40,7 +40,7 @@ quick_tags = {
 # END CONFIGURATION OPTIONS
 
 from aqt import mw
-from aqt.utils import getTag
+from aqt.utils import getTag, tooltip
 from aqt.reviewer import Reviewer
 
 # add space separated tags to a note
@@ -63,6 +63,7 @@ def promptAndAddTags(note):
         return
     # otherwise, add the given tags:
     addTags(note, tagString)
+    tooltip('Added tag(s) "%s"' % tagString)
 
 # replace _keyHandler in reviewer.py to add a keybinding
 
@@ -75,11 +76,15 @@ def newKeyHandler(self, evt):
     elif key in quick_tags:
         if 'bury' in quick_tags[key] and quick_tags[key]['bury']:
             mw.checkpoint("Add Tags and Bury")
+            addTags(note, quick_tags[key]['tags'])
             mw.col.sched.buryNote(note.id)
             mw.reset()
+            tooltip('Added tag(s) "%s" and buried note' 
+                    % quick_tags[key]['tags'])
         else:
             mw.checkpoint(_("Add Tags"))
-        addTags(note, quick_tags[key]['tags'])
+            addTags(note, quick_tags[key]['tags'])
+            tooltip('Added tag(s) "%s"' % quick_tags[key]['tags'])
     else:
         origKeyHandler(self, evt)
 
