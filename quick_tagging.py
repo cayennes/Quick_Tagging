@@ -32,6 +32,9 @@ quick_tags = {
 # Add multiple tags by seperating them with spaces:
 #'k': {'tags': 'hard marked'},
 
+# Bury by adding a True bury element:
+#'l': {'tags': 'needs_elaboration', bury: True},
+
 } # end quick_tags
 
 # END CONFIGURATION OPTIONS
@@ -40,20 +43,18 @@ from aqt import mw
 from aqt.utils import getTag
 from aqt.reviewer import Reviewer
 
-# add space separated tags to the current card
+# add space separated tags to a note
 
-def addTags(tagString):
-    # enable undo
-    mw.checkpoint(_("Add Tags"))
+def addTags(note, tagString):
     # add tags to card
     tagList = mw.col.tags.split(tagString)
     for tag in tagList:
-        mw.reviewer.card.note().addTag(tag)
-    mw.reviewer.card.note().flush()
+        note.addTag(tag)
+    note.flush()
 
-# prompt for tags and add the results
+# prompt for tags and add the results to a note
 
-def promptAndAddTags():
+def promptAndAddTags(note):
     # prompt for new tags
     prompt = _("Enter tags to add:")
     (tagString, r) = getTag(mw, mw.col, prompt)
@@ -61,16 +62,24 @@ def promptAndAddTags():
     if not r:
         return
     # otherwise, add the given tags:
-    addTags(tagsString)
+    addTags(note, tagString)
 
 # replace _keyHandler in reviewer.py to add a keybinding
 
 def newKeyHandler(self, evt):
     key = unicode(evt.text())
+    note = mw.reviewer.card.note()
     if key == tag_shortcut:
-        promptAndAddTags()
+        mw.checkpoint(_("Add Tags"))
+        promptAndAddTags(note)
     elif key in quick_tags:
-        addTags(quick_tags[key]['tags'])
+        if 'bury' in quick_tags[key] and quick_tags[key]['bury']:
+            mw.checkpoint("Add Tags and Bury")
+            mw.col.sched.buryNote(note.id)
+            mw.reset()
+        else:
+            mw.checkpoint(_("Add Tags"))
+        addTags(note, quick_tags[key]['tags'])
     else:
         origKeyHandler(self, evt)
 
