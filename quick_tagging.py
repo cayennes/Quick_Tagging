@@ -1,5 +1,5 @@
 # Quick Tagging is an anki2 addon for adding tags while reviewing by
-# hitting the 't' key
+# hitting a keyboard shortcut ('t' by default.)
 # Copyright 2012 Cayenne Boyer
 #
 # This program is free software: you can redistribute it and/or modify
@@ -15,6 +15,13 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+# CONFIGURATION OPTIONS
+
+# Change this to change what keybinding opens the add tags dialog
+
+tag_shortcut = 't'
+
+# END CONFIGURATION OPTIONS
 
 from aqt import mw
 from aqt.utils import getTag
@@ -42,7 +49,7 @@ def promptAndAddTags():
 
 def newKeyHandler(self, evt):
     key = unicode(evt.text())
-    if key == 't':
+    if key == tag_shortcut:
         promptAndAddTags()
     else:
         origKeyHandler(self, evt)
